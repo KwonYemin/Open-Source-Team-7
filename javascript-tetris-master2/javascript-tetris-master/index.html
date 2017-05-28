@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
     //테스트용
@@ -141,17 +141,17 @@
     //-----------------------------------------------------
     // check if a piece can fit into a position in the grid
     //-----------------------------------------------------
-    function occupied(type, x, y, dir) {
-      var result = false
-      eachblock(type, x, y, dir, function(x, y) {
+    function occupied(type, x, y, dir) { //블록이 게임판 안에 있는지 확인하는 함수
+      var result = false // result값 0으로 초기화
+      eachblock(type, x, y, dir, function(x, y) { //각 블록이 게임판 내부에 있는지 확인
         if ((x < 0) || (x >= nx) || (y < 0) || (y >= ny) || getBlock(x,y))
-          result = true;
+          result = true; //게임판 밖에 있는 블록이 있을 경우 result값 true로 변경
       });
-      return result;
+      return result; // result값 리턴
     }
 
-    function unoccupied(type, x, y, dir) {
-      return !occupied(type, x, y, dir);
+    function unoccupied(type, x, y, dir) { //occupied의 반대값을 리턴하는 함수
+      return !occupied(type, x, y, dir); //occupied의 반대값을 리턴
     }
 
     //-----------------------------------------
@@ -363,76 +363,76 @@
     // RENDERING
     //-------------------------------------------------------------------------
 
-    var invalid = {};
+    var invalid = {}; //각각의 부분별 다시 그려줘야 할지 판단할 때 쓰이는 변수
 
-    function invalidate()         { invalid.court  = true; }
-    function invalidateNext()     { invalid.next   = true; }
-    function invalidateScore()    { invalid.score  = true; }
-    function invalidateRows()     { invalid.rows   = true; }
+    function invalidate()         { invalid.court  = true; } //게임판 내부를 다시 그려줘야 할 시
+    function invalidateNext()     { invalid.next   = true; } //다음블록모양 다시 그려줘야 할 시 실행
+    function invalidateScore()    { invalid.score  = true; } //점수 다시 그려줘야 할 시
+    function invalidateRows()     { invalid.rows   = true; } //없앤 줄 수 다시 그려줘야 할 시
 
-    function draw() {
-      ctx.save();
-      ctx.lineWidth = 1;
+    function draw() { // 그리기 작업을 해주는 함수 각각의 그리기 함수를 포함함
+      ctx.save(); //게임판 영역의 특성 저장
+      ctx.lineWidth = 1; //게임판 영역의 외각선 두께 변경
       ctx.translate(0.5, 0.5); // for crisp 1px black lines
       drawCourt();
       drawNext();
       drawScore();
       drawRows();
-      ctx.restore();
+      ctx.restore(); //게임판 영역의 특성 복원
     }
 
-    function drawCourt() {
-      if (invalid.court) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        if (playing)
+    function drawCourt() { //게임판 내부를 그리는 함수
+      if (invalid.court) { // invalid.court변수의 값이 true일 경우 실행
+        ctx.clearRect(0, 0, canvas.width, canvas.height); //게임판 내부 그림 클리어
+        if (playing) //게임이 플레이(진행중)일때 진행중인 블록 그리기
           drawPiece(ctx, current.type, current.x, current.y, current.dir);
         var x, y, block;
         for(y = 0 ; y < ny ; y++) {
           for (x = 0 ; x < nx ; x++) {
-            if (block = getBlock(x,y))
+            if (block = getBlock(x,y)) //게임판 데이터 확인 후 쌓여있는 블럭이 있으면 그리기
               drawBlock(ctx, x, y, block.color);
           }
         }
-        ctx.strokeRect(0, 0, nx*dx - 1, ny*dy - 1); // court boundary
-        invalid.court = false;
+        ctx.strokeRect(0, 0, nx*dx - 1, ny*dy - 1); //게임판 외각선 그리기
+        invalid.court = false; //함수실행 확인 변수 false로 초기화
       }
     }
 
-    function drawNext() {
-      if (invalid.next) {
+    function drawNext() { //다음 블록모양 그려주는 함수
+      if (invalid.next) { // invalid.next변수의 값이 true일 경우 실행
         var padding = (nu - next.type.size) / 2; // half-arsed attempt at centering next piece display
-        uctx.save();
-        uctx.translate(0.5, 0.5);
-        uctx.clearRect(0, 0, nu*dx, nu*dy);
-        drawPiece(uctx, next.type, padding, padding, next.dir);
-        uctx.strokeStyle = 'black';
-        uctx.strokeRect(0, 0, nu*dx - 1, nu*dy - 1);
-        uctx.restore();
-        invalid.next = false;
+        uctx.save(); //그려줄 영역의 특성 저장
+        uctx.translate(0.5, 0.5); //그려줄 영역 이동
+        uctx.clearRect(0, 0, nu*dx, nu*dy); //그려줄 영역 그림 클리어
+        drawPiece(uctx, next.type, padding, padding, next.dir); //다음 블록 그리기
+        uctx.strokeStyle = 'black'; //그려줄 외각선 색상변경
+        uctx.strokeRect(0, 0, nu*dx - 1, nu*dy - 1); //그려줄 영역 외각선 그리기
+        uctx.restore(); //그려줄 영역의 특성 복원
+        invalid.next = false; //함수실행 확인 변수 false로 초기화
       }
     }
 
-    function drawScore() {
-      if (invalid.score) {
-        html('score', ("00000" + Math.floor(vscore)).slice(-5));
-        invalid.score = false;
+    function drawScore() { //점수를 그려주는 함수
+      if (invalid.score) { // invalid.score변수가 true일 경우 실행
+        html('score', ("00000" + Math.floor(vscore)).slice(-5)); // 점수 그리기
+        invalid.score = false; //함수실행 확인 변수 false로 초기화
       }
     }
 
-    function drawRows() {
-      if (invalid.rows) {
-        html('rows', rows);
-        invalid.rows = false;
+    function drawRows() { //클리어시킨 줄 수 그려주는 함수
+      if (invalid.rows) { // invalid.rows 변수가 true일 경우 실행
+        html('rows', rows); //줄 수 그리기
+        invalid.rows = false; //함수실행 확인 변수 false로 초기화
       }
     }
 
-    function drawPiece(ctx, type, x, y, dir) {
+    function drawPiece(ctx, type, x, y, dir) { //블록 그리는 함수
       eachblock(type, x, y, dir, function(x, y) {
         drawBlock(ctx, x, y, type.color);
       });
     }
 
-    function drawBlock(ctx, x, y, color) {
+    function drawBlock(ctx, x, y, color) { // 블록의 각각의 조각 그리는 함수
       ctx.fillStyle = color;
       ctx.fillRect(x*dx, y*dy, dx, dy);
       ctx.strokeRect(x*dx, y*dy, dx, dy)
